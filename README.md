@@ -1,2 +1,4 @@
-# Indy-Init-Hackathon-2026
-One day to push AI to the edge and prove a repeatable process for turning vibe-coded work into production-grade software.
+# Herspace
+HERspace is a women’s health app that plans PMOS-friendly meals around your diet and allergies, tracks your period, mood and symptoms, and predicts your next cycle, all in one place.
+
+Try it out at [https://kkathait.github.io/Indy-Init-Hackathon-2026/](url)
