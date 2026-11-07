@@ -1002,4 +1002,31 @@ function onb(){const st=S.step,tot=6,opt=(a,v,on)=>`<button class="chip ${on?"on
 let route=(location.hash.slice(1)||"home");if(!V[route])route="home";
 const NAV=[["home","🏡","Home"],["planner","🍽️","Planner"],["ai","✨","Ask HER AI"],["library","🌱","Library"],["health","🌸","My Health"]];
 function render(){save();let h=`<div class="app"><nav><div class="logo"><b>HER<span style="color:var(--acc)">space</span></b><i>Your space. Your health. Your choices.</i></div>${NAV.map(n=>`<button class="${route===n[0]?"on":""}" data-go="${n[0]}"><span>${n[1]}</span>${n[2]}</button>`).join("")}</nav><main>${V[route]()}</main></div>`;if(!S.onb)h+=onb();$("#root").innerHTML=h;const m=$("#msgs");if(m)m.scrollTop=m.scrollHeight}
-function modal(id){const m=M.find(x=>x.id===id);const d=document.createElement("div");d.className="modal";d.innerHTML=`<div class="sheet">${tile(m)}<div class="row" style="margin-top:10px"><h2 style="margin:0">${m.n}</h2><button data-a="close" style="font-size:22px">✕</button></div><p class="sm mut">${m.t} · ${m.k} kcal · ${m.p} g protein · ${m.i} mg iron · ${m.f} g fiber</p><b>Ingredients</b><ul>${m.ing.map(i=>`<li>${i}</li>`).join("")}</ul><b>Preparation</b><ol>${m.st.map(i=>`<li>${i}</li>`).join("")}</ol><button class="btn"
+function modal(id){const m=M.find(x=>x.id===id);const d=document.createElement("div");d.className="modal";d.innerHTML=`<div class="sheet">${tile(m)}<div class="row" style="margin-top:10px"><h2 style="margin:0">${m.n}</h2><button data-a="close" style="font-size:22px">✕</button></div><p class="sm mut">${m.t} · ${m.k} kcal · ${m.p} g protein · ${m.i} mg iron · ${m.f} g fiber</p><b>Ingredients</b><ul>${m.ing.map(i=>`<li>${i}</li>`).join("")}</ul><b>Preparation</b><ol>${m.st.map(i=>`<li>${i}</li>`).join("")}</ol><button class="btn" data-a="save" data-v="${m.id}" data-keep="1">${S.saved.includes(m.id)?"♥ Saved":"♡ Save recipe"}</button></div>`;d.addEventListener("click",e=>{if(e.target===d)d.remove()});document.body.appendChild(d)}
+const tg=(a,v)=>{const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1)};
+function send(t){t=(t||"").trim();if(!t)return;S.chat.push({r:"u",t});render();setTimeout(()=>{S.chat.push({r:"a",t:reply(t)||"I can build a recipe from what’s in your fridge, or answer nutrition questions. Try “I have chickpeas and spinach”."});render()},500)}
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g){route=g.dataset.go;location.hash=route;render();window.scrollTo(0,0);return}
+ const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a,v=b.dataset.v;
+ if(a==="close"){b.closest(".modal").remove();return}
+ if(a==="open"){modal(+v);return}
+ if(a==="save"){tg(S.saved,+v);toast(S.saved.includes(+v)?"Saved to your recipes ♥":"Removed from saved");if(b.dataset.keep){b.textContent=S.saved.includes(+v)?"♥ Saved":"♡ Save recipe";save();return}}
+ else if(a==="swap"){const p=pool(v),c=cur(v),n=p[(p.indexOf(c)+1)%p.length];S.plan[v]=n.id;toast("Swapped to "+n.n)}
+ else if(a==="water")S.water=Math.min(12,S.water+1);else if(a==="waterm")S.water=Math.max(0,S.water-1);
+ else if(a==="mood")S.mood=v;else if(a==="tab")S.tab=v;
+ else if(a==="diet")S.diet=v;else if(a==="al")tg(S.al,v);else if(a==="goal")tg(S.goals,v);else if(a==="cook")S.cook=v;else if(a==="skill")S.skill=v;
+ else if(a==="sym")tg(S.sym,v);else if(a==="day")tg(S.period,key(+v));
+ else if(a==="ask"){send(v);return}else if(a==="send"){const q=$("#q");send(q.value);return}
+ else if(a==="ptab"){S.ptab=v;if(v==="shop"&&!Object.keys(groceries()).length)fill()}else if(a==="day2")S.day=v;else if(a==="autofill"){fill();S.ptab="week";toast("Week planned 🌿")}else if(a==="clearwk")S.week={};else if(a==="clearGot")S.got=[];
+ else if(a==="copy"){const g=groceries();const tx="HERspace grocery list\n"+Object.entries(g).map(([c,it])=>"\n"+c+"\n"+it.map(([i,k])=>"- "+i+(k>1?" x"+k:"")).join("\n")).join("\n");try{navigator.clipboard.writeText(tx);toast("List copied")}catch(err){toast("Couldn’t copy")}}
+ else if(a==="redo"){S.onb=false;S.step=0}
+ else if(a==="back")S.step--;
+ else if(a==="next"){const n=$("#nm"),d=$("#dl");if(n)S.name=n.value.trim();if(d)S.dis=d.value.trim();if(S.step===5){S.onb=true;S.plan={breakfast:0,lunch:0,dinner:0,snack:0};route="home";location.hash="home"}else S.step++}
+ render()});
+document.addEventListener("change",e=>{const t=e.target;if(t.dataset.sel){(S.week[S.day]=S.week[S.day]||{})[t.dataset.sel]=+t.value||0;render()}else if(t.dataset.got){tg(S.got,t.dataset.got);render()}});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="q"){send(e.target.value)}});
+window.addEventListener("hashchange",()=>{const r=location.hash.slice(1);if(V[r]&&r!==route){route=r;render()}});
+render();
+    </script>
+</body>
+
+</html>
